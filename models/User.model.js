@@ -5,10 +5,8 @@ var Schema = mongoose.Schema;
 var UserSchema = new Schema({
     username: {type: String, lowercase: true, unique: true, required: true, match: [/^[a-z0-9_-]{3,15}$/, 'is invalid']},
     hash: String,
-    salt: String,
-    name: String,
+    salt: String, 
     create_date: {type: Date, required: true, default: Date.now()},
-    is_active: Boolean,
     last_seen: Date
 });
 
