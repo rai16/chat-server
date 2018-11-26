@@ -2,6 +2,7 @@ var _ = require('lodash');
 var mongoose = require('mongoose');
 var router = require('express').Router();
 var User = mongoose.model('User');
+var crypto = require('crypto');
 
 router.get('/', function(req, res, next){
     var users = User.find({})
@@ -10,9 +11,9 @@ router.get('/', function(req, res, next){
             next();
     //send only username and last seen
         var result = [];
-        for(user in users){
+        users.forEach(user => {
             result.push(_.pick(user, ['username', 'last_seen', 'create_date']));
-        }
+        });
         return res.json({users: result});
     });
 })
@@ -43,8 +44,8 @@ router.post('/login', function(req, res, next){
         if(!user){
             return res.status(422).json({errors: "User doesn't exist. Please register."});
         }
-        
-        if(!user.validPassword(req.body.password)){
+        var hash = crypto.pbkdf2Sync(password, user.salt, 10000, 512, 'sha512').toString('hex');
+        if(hash !== user.hash){
             return res.status(422).json({errors: "The password isn't correct. Please try again."});
         }
         return res.json({loggedIn: true});
@@ -59,8 +60,9 @@ router.post('/register', function(req, res, next){
 
     var user = new User();
     user.username = req.body.username;
-    user.setPassword(req.body.password);
-    user.last_seen = NULL;
+    user.salt = crypto.randomBytes(16).toString('hex');
+    user.hash = crypto.pbkdf2Sync(req.body.password, user.salt, 10000, 512, 'sha512').toString('hex');
+    user.last_seen = null;
     
     user.save().then(function(){
         return res.json({userCreated: true});
