@@ -39,18 +39,17 @@ router.post('/login', function(req, res, next){
     User.findOne({username: req.body.username})
     .exec(function(err, user){
         if(err)
-        return res.status(422).json({errors: "Could not login. please try again."});
+            return res.status(401).json({errors: "Could not login. please try again."});
         
-        if(!user){
-            return res.status(422).json({errors: "User doesn't exist. Please register."});
+        if(user === null){
+            return res.status(401).json({errors: "User doesn't exist. Please register."});
         }
-        var hash = crypto.pbkdf2Sync(password, user.salt, 10000, 512, 'sha512').toString('hex');
+        var hash = crypto.pbkdf2Sync(req.body.password, user.salt, 10000, 512, 'sha512').toString('hex');
         if(hash !== user.hash){
-            return res.status(422).json({errors: "The password isn't correct. Please try again."});
+            return res.status(401).json({errors: "The password isn't correct. Please try again."});
         }
         return res.json({loggedIn: true});
     });
-    next();
 })
 
 router.post('/register', function(req, res, next){
