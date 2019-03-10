@@ -12,7 +12,7 @@ router.get('/', function(req, res, next){
     //send only username and last seen
         var result = [];
         users.forEach(user => {
-            result.push(_.pick(user, ['username', 'last_seen', 'create_date']));
+            result.push(_.pick(user, ['_id', 'username', 'last_seen', 'create_date']));
         });
         return res.json({users: result});
     });
@@ -48,7 +48,7 @@ router.post('/login', function(req, res, next){
         if(hash !== user.hash){
             return res.status(401).json({errors: "The password isn't correct. Please try again."});
         }
-        return res.json({loggedIn: true});
+        return res.json({loggedIn: true, userid: user._id.toString()});
     });
 })
 

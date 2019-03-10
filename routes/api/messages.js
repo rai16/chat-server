@@ -12,7 +12,7 @@ router.get('/:userId', function(req, res, next){
         return res.json({allMessages: mssgs});
     });
 })
-
+//given sender and receiver return all messages between them
 router.get('/:senderId/:receiverId', function(req, res, next){
     var messages = Message.find({user_from: req.params.senderId, user_to: req.params.receiverId})
     .exec(function(err, mssgs){
@@ -22,9 +22,10 @@ router.get('/:senderId/:receiverId', function(req, res, next){
     })
 })
 
+//send a message to a particular user
 router.post('/send', function(req, res, next){
     if(!req.body.user_from || !req.body.user_to || !req.body.content)
-        return res.status(422).json({errors: "Username/Password can't be blank"});
+        return res.status(422).json({errors: "Cannot send this message."});
     
     var mssg = new Message();
     mssg.user_from = req.body.user_from;
