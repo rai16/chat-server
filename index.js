@@ -2,11 +2,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var cors = require('cors');
+var io = require('./socket');
 //import your mongoose models
 var Message = require('./models/Message.model');
 var User = require('./models/User.model');
 // initialize our express app
 const app = express();
+var http = require('http').createServer(app);
 //move it to env file later
 let port = 1234;
 //middle ware to allow CORS
@@ -39,8 +41,9 @@ app.use(function(err, req, res, next) {
     }});
   });
 
-app.listen(port, () => {
+http.listen(port, () => {
     console.log('Server is up and running on port numner ' + port);
 });
 
+io.startIo(http);
 module.exports = app;

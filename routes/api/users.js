@@ -3,8 +3,26 @@ var mongoose = require('mongoose');
 var router = require('express').Router();
 var User = mongoose.model('User');
 var crypto = require('crypto');
+var secret = require('../../config').secret;
+var auth = require('../auth');
+var jwt = require('jsonwebtoken');
 
-router.get('/', function(req, res, next){
+function generateJWT(id, username){
+    return jwt.sign({
+        id,
+        username
+      }, secret);
+}
+
+function toAuthJson(id, token){
+    return {
+        loggedIn: true,
+        id,
+        token
+      };
+}
+
+router.get('/', auth.required, function(req, res, next){
     var users = User.find({})
     .exec(function(err, users){
         if(err)
@@ -18,7 +36,7 @@ router.get('/', function(req, res, next){
     });
 })
 
-router.get('/:id', function(req, res, next){
+router.get('/:id', auth.required, function(req, res, next){
     User.findById(req.params.id)
     .exec(function(err, user){
         if(err)
@@ -48,7 +66,8 @@ router.post('/login', function(req, res, next){
         if(hash !== user.hash){
             return res.status(401).json({errors: "The password isn't correct. Please try again."});
         }
-        return res.json({loggedIn: true, userid: user._id.toString()});
+        user.token = generateJWT(user._id.toString(), user.username);
+        return res.json({user: toAuthJson(user._id.toString(), user.token)});
     });
 })
 

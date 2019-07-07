@@ -3,8 +3,10 @@ var mongoose = require('mongoose');
 var router = require('express').Router();
 var Message = mongoose.model('Message');
 var crypto = require('crypto');
+var auth = require('../auth');
+
 //given a user id, function will return all messages sent to or from this user
-router.get('/:userId', function(req, res, next){
+router.get('/:userId', auth.required, function(req, res, next){
     var messages = Message.find( { $or: [ {user_from: req.params.userId}, {user_to: req.params.userId} ] } )
     .exec(function(err, mssgs) {
         if(err)
@@ -13,7 +15,7 @@ router.get('/:userId', function(req, res, next){
     });
 })
 //given sender and receiver return all messages between them
-router.get('/:senderId/:receiverId', function(req, res, next){
+router.get('/:senderId/:receiverId', auth.required, function(req, res, next){
     var messages = Message.find({user_from: req.params.senderId, user_to: req.params.receiverId})
     .exec(function(err, mssgs){
         if(err)
