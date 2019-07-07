@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var cors = require('cors');
-var io = require('./socket');
 //import your mongoose models
 var Message = require('./models/Message.model');
 var User = require('./models/User.model');
@@ -13,6 +12,8 @@ var http = require('http').createServer(app);
 let port = 1234;
 //middle ware to allow CORS
 app.use(cors());
+//socket connection event handlers
+var io = require('./socket');
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());

@@ -33,6 +33,7 @@ router.post('/send', function(req, res, next){
     mssg.user_from = req.body.user_from;
     mssg.user_to = req.body.user_to;
     mssg.content = req.body.content;
+    mssg.time = req.body.time;
     mssg.message_type = "TEXT";
     mssg.read_status = "SENT";
     mssg.save().then(function(){
