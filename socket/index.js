@@ -11,12 +11,12 @@ function getRoomName(id){
 }
 
 function updateMessageReadStatus(mssgId, status){
-    Message.findByIdAndUpdate(mssgId, {read_status: status}, 
+    Message.findByIdAndUpdate(mssgId, {read_status: status},
         (err, model) => console.log('Error in updating status for '+ mssgId));
 }
 
 exports.startIo = (server) => {
-    
+
     io.use((socket, next) => {
         const token = socket.handshake.query.Token;
         // verify token
@@ -33,7 +33,7 @@ exports.startIo = (server) => {
     io = io.listen(server);
 
     io.on(constant.SOCKET_CONNECTION, socket => {
-        //to handle single user multiple connections, every connection joins a room defined by user id. 
+        //to handle single user multiple connections, every connection joins a room defined by user id.
         //so, multiple connections of same user goes to same room.
         socket.join(getRoomName(socket.handshake.query.userid));
         //tell every client that a new user connected
@@ -61,7 +61,7 @@ exports.startIo = (server) => {
                     console.log(mssg._id);
                     //emit event for message saved at DB
                     socket.emit(constant.SOCKET_MESSAGE_SENT, {messageId: mssg._id});
-                    //if user connected send it to him 
+                    //if user connected send it to him
                     if(isUserConnected(payload.user_to)){
                         socket.to(getRoomName(mssg.user_to)).emit(constant.SOCKET_MESSAGE_RECEIVED, mssg);
                         //tell client that message sent to user
@@ -69,13 +69,13 @@ exports.startIo = (server) => {
                         //update message status in DB
                         updateMessageReadStatus(mssg._id, "UNREAD");
                     }
-                    
+
                 }).catch(socket.emit(constant.SOCKET_MESSAGE_ERROR, 'Error in saving message'));
             }
         }
 
         function onMessageUnread(payload){
-            if(isUserConnected(payload.user_to))
+        //    if(isUserConnected(payload.user_to))
 
         }
 
@@ -87,6 +87,6 @@ exports.startIo = (server) => {
     function isUserConnected(userId){
         return io.sockets.adapter.rooms[getRoomName(userId)];
     }
-    
+
     return io;
 };
