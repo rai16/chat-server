@@ -28,7 +28,7 @@
     "method-override": "^3.0.0",
     "methods": "^1.1.2",
     "mongodb": "^3.5.6",
-    "mongoose": "^5.9.10",
+    "mongoose": "^5.7.5",
     "mongoose-unique-validator": "^2.0.2",
     "path": "^0.12.7",
     "socket.io": "^2.2.0"
