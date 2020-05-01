@@ -2,6 +2,7 @@ var router = require('express').Router()
 var auth = require('../auth')
 var MessageController = require('../../controllers/MessageController')
 //TODO: Add auth.required after dev done
+
 //given a user id, function will return all messages sent to or from this user
 router.get('/:userId', MessageController.getAllMessagesForUserId)
 

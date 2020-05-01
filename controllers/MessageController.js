@@ -6,6 +6,9 @@ var crypto = require('crypto');
 var auth = require('../routes/auth');
 
 //get all messages sent to or from this user
+//TODO:
+// this will also update the read status of messages to UNREAD
+//after that emit to all users that this user has received all messages sent by them
 exports.getAllMessagesForUserId = function(req, res, next)
 {
     var messages = Message.find( { $or: [ {user_from: req.params.userId}, {user_to: req.params.userId} ] } )
@@ -17,6 +20,9 @@ exports.getAllMessagesForUserId = function(req, res, next)
 }
 
 //get all messages between two users
+//TODO:
+// this will also update the read status of messages to UNREAD
+//after that emit to all users that this user has received all messages sent by them.
 exports.getAllMessagesForSenderAndReceiverIds = function(req, res, next)
 {
     var messages = Message.find({user_from: req.params.senderId, user_to: req.params.receiverId})
