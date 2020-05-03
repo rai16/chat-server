@@ -1,3 +1,4 @@
+var constant = require('../constants');
 
 module.exports = function(socket, io){
 
@@ -29,7 +30,7 @@ module.exports = function(socket, io){
     {
        //if the user being typed to is connected let him know
         if(isUserConnected(payload.user_to))
-            socket.to(getRoomName(mssg.user_to)).emit(constant.SOCKET_MESSAGE_TYPING, user_from);
+            socket.to(getRoomName(mssg.user_to)).emit(constant.SOCKET_MESSAGE_TYPING, {user: user_from});
     }
   }
 
@@ -50,10 +51,10 @@ module.exports = function(socket, io){
           //save message in DB
           mssg.save().then(function(){
               //emit event for message saved at DB
-              socket.emit(constant.SOCKET_MESSAGE_SENT, {messageId: mssg._id});
+              socket.emit(constant.SOCKET_MESSAGE_SENT, {message: mssg});
               //if user connected send it to him
               if(isUserConnected(payload.user_to))
-                  socket.to(getRoomName(mssg.user_to)).emit(constant.SOCKET_MESSAGE_RECEIVED, mssg);
+                  socket.to(getRoomName(mssg.user_to)).emit(constant.SOCKET_MESSAGE_RECEIVED, {message: mssg});
 
           }).catch(socket.emit(constant.SOCKET_MESSAGE_ERROR, 'Error in saving message'));
       }
@@ -63,15 +64,15 @@ module.exports = function(socket, io){
 //If the user that sent that message is still connected, let him know.
   function onMessageUnread(payload)
   {
-    if(!payload.message)
+    if(!payload.messageId)
         socket.emit(constant.SOCKET_MESSAGE_ERROR, 'Unrecognized payload');
     else
     {
-        var message = Message.findById(payload.message);
-        updateMessageReadStatus(payload.message, "UNREAD");
+        var message = Message.findById(payload.messageId);
+        updateMessageReadStatus(payload.messageId, "UNREAD");
         //if sender of message connected, let him know that all his messages now received
         if(isUserConnected(message.user_from))
-          socket.to(getRoomName(message.user_from)).emit(constant.SOCKET_MESSAGE_UNREAD, payload.message);
+          socket.to(getRoomName(message.user_from)).emit(constant.SOCKET_MESSAGE_UNREAD, payload.messageId);
     }
   }
 
@@ -89,7 +90,7 @@ module.exports = function(socket, io){
           );
           //if sender of messages is connected, let him know that all his messages were read
           if(isUserConnected(payload.user_from))
-            socket.to(getRoomName(payload.user_from)).emit(constant.SOCKET_MESSAGE_READ, payload.user_to);
+            socket.to(getRoomName(payload.user_from)).emit(constant.SOCKET_MESSAGE_READ, {userId : payload.user_to});
       }
   }
 }
